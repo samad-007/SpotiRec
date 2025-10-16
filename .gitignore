@@ -1,5 +1,22 @@
-# Dependencies
+# Node.js (legacy - not used)
 node_modules/
+package.json
+package-lock.json
+server/
+seed.js
+test-mongo.js
+
+# Python Dependencies
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Environment Variables
 .env

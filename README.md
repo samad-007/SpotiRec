@@ -4,7 +4,7 @@ A beautiful, Spotify-themed web application that provides personalized music rec
 
 ![SpotiRec Preview](https://img.shields.io/badge/Built%20with-Spotify%20API-1DB954?style=for-the-badge&logo=spotify)
 ![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb)
-![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js)
+![Python](https://img.shields.io/badge/Backend-Python%20Flask-3776AB?style=for-the-badge&logo=python)
 
 ## ✨ Features
 
@@ -22,8 +22,8 @@ A beautiful, Spotify-themed web application that provides personalized music rec
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm or yarn
+- Python 3.8 or higher
+- pip (Python package manager)
 - Spotify Developer Account
 - MongoDB Atlas Account (or local MongoDB instance)
 
@@ -35,30 +35,36 @@ A beautiful, Spotify-themed web application that provides personalized music rec
    cd spotirec
    ```
 
-2. **Install dependencies**
+2. **Create a virtual environment** (recommended)
    ```bash
-   npm install
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Set up environment variables**
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set up environment variables**
    ```bash
    cp .env.example .env
    ```
    Then edit `.env` and fill in your actual credentials (see Configuration section below)
 
-4. **Set up Spotify API**
+5. **Set up Spotify API**
    - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
    - Create a new application
    - After creation, go to Settings and add `http://127.0.0.1:3000/callback` to Redirect URIs
    - Copy your Client ID and Client Secret and add them to `.env`
 
-5. **Set up MongoDB Atlas**
+6. **Set up MongoDB Atlas**
    - Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
    - Create a database (e.g., `recommender`)
    - Create a collection for your songs (e.g., `songs`)
    - Get your connection string and add it to `.env`
 
-6. **Populate your MongoDB database**
+7. **Populate your MongoDB database**
    
    Your MongoDB collection should have documents with this structure:
    ```json
@@ -97,17 +103,14 @@ A beautiful, Spotify-themed web application that provides personalized music rec
        "artist": "Dua Lipa",
        "album": "Future Nostalgia",
        "genre": "Pop",
-7. **Run the application**
+8. **Run the application**
    ```bash
-   npm run dev
+   python app.py
    ```
    
-   Or for production:
-   ```bash
-   npm start
-   ```
+   The server will start on `http://localhost:3000`
 
-8. **Open your browser**
+9. **Open your browser**
    
    Navigate to `http://localhost:3000`
 
@@ -139,16 +142,15 @@ PORT=3000
 
 ```
 spotirec/
-├── server/
-│   └── index.js          # Express server with Spotify OAuth & MongoDB
+├── app.py              # Flask server with Spotify OAuth & MongoDB
 ├── public/
-│   ├── styles.css        # Spotify-themed styling
-│   └── app.js           # Frontend JavaScript logic
-├── index.html           # Main HTML file
-├── package.json         # Dependencies and scripts
-├── .env.example        # Environment variables template
-├── .gitignore          # Git ignore file
-└── README.md           # This file
+│   ├── styles.css      # Spotify-themed styling
+│   └── app.js         # Frontend JavaScript logic
+├── index.html         # Main HTML file
+├── requirements.txt   # Python dependencies
+├── .env.example      # Environment variables template
+├── .gitignore        # Git ignore file
+└── README.md         # This file
 ```
 
 ## 🎨 Features Breakdown
@@ -175,9 +177,9 @@ The system analyzes:
 
 ## 🛠️ Technologies Used
 
-- **Backend**: Node.js, Express
+- **Backend**: Python 3.x, Flask
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **Database**: MongoDB Atlas
+- **Database**: MongoDB Atlas (pymongo)
 - **API**: Spotify Web API
 - **Authentication**: OAuth 2.0
 - **Styling**: Custom CSS with Spotify Design System
