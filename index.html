@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover personalized music recommendations based on your Spotify listening patterns">
+    <meta name="theme-color" content="#1db954">
+    <title>SpotiRec - Your Personal Music Recommender</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                    </svg>
+                </div>
+                <h1>SpotiRec</h1>
+                <p class="tagline">Discover music tailored to your taste</p>
+            </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎵</div>
+                    <h3>Smart Recommendations</h3>
+                    <p>Get personalized song suggestions based on your listening patterns</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎧</div>
+                    <h3>Your Music Taste</h3>
+                    <p>Analyze your top tracks and discover what makes your playlist unique</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✨</div>
+                    <h3>Curated Database</h3>
+                    <p>Access a handpicked collection of songs matched to your preferences</p>
+                </div>
+            </div>
+
+            <button id="loginBtn" class="spotify-login-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                </svg>
+                Login with Spotify
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="screen">
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <div class="logo-small">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                        </svg>
+                        <span>SpotiRec</span>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <div id="userProfile" class="user-profile">
+                        <img id="userAvatar" src="" alt="User" class="user-avatar">
+                        <span id="userName">Loading...</span>
+                    </div>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="dashboard-content">
+            <div class="container">
+                <!-- Welcome Section -->
+                <section class="welcome-section">
+                    <h1 id="welcomeTitle">Welcome back!</h1>
+                    <p class="subtitle">Here's your personalized music experience</p>
+                </section>
+
+                <!-- Quick Stats -->
+                <section class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);">🎵</div>
+                        <div class="stat-content">
+                            <h3 id="topTracksCount">-</h3>
+                            <p>Top Tracks Analyzed</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ff006c 0%, #ff4785 100%);">🎧</div>
+                        <div class="stat-content">
+                            <h3 id="recommendationsCount">-</h3>
+                            <p>Songs Recommended</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">✨</div>
+                        <div class="stat-content">
+                            <h3 id="matchScore">-</h3>
+                            <p>Match Score</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Top Tracks -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>Your Top Tracks</h2>
+                        <button id="refreshTopTracks" class="refresh-btn">↻ Refresh</button>
+                    </div>
+                    <div id="topTracksList" class="tracks-grid">
+                        <div class="loading">Loading your top tracks...</div>
+                    </div>
+                </section>
+
+                <!-- Recommendations -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>Recommended For You</h2>
+                        <button id="getRecommendations" class="primary-btn">
+                            Get Recommendations
+                        </button>
+                    </div>
+                    <div id="userPreferences" class="preferences-panel" style="display: none;">
+                        <h3>Based on your taste:</h3>
+                        <div class="preferences-content">
+                            <div class="preference-item">
+                                <strong>Top Artists:</strong>
+                                <span id="topArtists">-</span>
+                            </div>
+                            <div class="preference-item">
+                                <strong>Top Genres:</strong>
+                                <span id="topGenres">-</span>
+                            </div>
+                            <div class="preference-badges">
+                                <span class="badge" id="energyBadge">Energy: -</span>
+                                <span class="badge" id="danceabilityBadge">Danceability: -</span>
+                                <span class="badge" id="valenceBadge">Mood: -</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="recommendationsList" class="recommendations-grid">
+                        <div class="empty-state">
+                            <div class="empty-icon">🎵</div>
+                            <p>Click "Get Recommendations" to discover new music tailored to your taste!</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
