@@ -155,6 +155,42 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Data Visualization Section -->
+                <section class="content-section" id="visualizationSection" style="display: none;">
+                    <div class="section-header">
+                        <h2>📊 Music Analysis & Insights</h2>
+                        <button id="refreshVisualization" class="refresh-btn">↻ Refresh Analysis</button>
+                    </div>
+                    <div class="visualization-info">
+                        <p>Deep dive into why these songs match your taste. The graphs below compare your listening preferences with the recommended tracks across key musical attributes.</p>
+                    </div>
+                    <div id="visualizationContainer" class="visualization-container">
+                        <div class="loading">Generating analysis...</div>
+                    </div>
+                    <div id="analysisMetrics" class="analysis-metrics" style="display: none;">
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <h3 id="similarityScore">-</h3>
+                            <p>Overall Match</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⚡</div>
+                            <h3 id="energyMatch">-</h3>
+                            <p>Energy Similarity</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">💃</div>
+                            <h3 id="danceMatch">-</h3>
+                            <p>Dance Similarity</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">😊</div>
+                            <h3 id="valenceMatch">-</h3>
+                            <p>Mood Similarity</p>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
     </div>

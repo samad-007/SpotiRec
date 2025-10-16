@@ -6,12 +6,18 @@ Music recommendation system using Spotify API and MongoDB
 import os
 import base64
 from datetime import timedelta
-from flask import Flask, request, redirect, jsonify, session, send_from_directory
+from flask import Flask, request, redirect, jsonify, session, send_from_directory, send_file
 from flask_cors import CORS
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import requests
 from urllib.parse import urlencode
+import matplotlib
+matplotlib.use('Agg')  # Use non-GUI backend
+import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
+import base64 as b64
 
 # Load environment variables
 load_dotenv()
@@ -369,15 +375,20 @@ def get_recommendations():
         for rec in recommendations:
             rec['_id'] = str(rec['_id'])
         
+        # Store in session for visualization
+        user_preferences = {
+            'topArtists': top_artists[:5],
+            'topGenres': top_genres[:5],
+            'avgEnergy': avg_energy,
+            'avgDanceability': avg_danceability,
+            'avgValence': avg_valence
+        }
+        session['user_preferences'] = user_preferences
+        session['recommendations'] = recommendations
+        
         return jsonify({
             'recommendations': recommendations,
-            'userPreferences': {
-                'topArtists': top_artists[:5],
-                'topGenres': top_genres[:5],
-                'avgEnergy': avg_energy,
-                'avgDanceability': avg_danceability,
-                'avgValence': avg_valence
-            }
+            'userPreferences': user_preferences
         })
     except Exception as error:
         print(f'Error generating recommendations: {error}')
@@ -395,6 +406,214 @@ def logout():
 def auth_status():
     """Check authentication status"""
     return jsonify({'authenticated': 'access_token' in session})
+
+@app.route('/api/visualize-analysis')
+def visualize_analysis():
+    """Generate visualization comparing user preferences with recommendations"""
+    if 'access_token' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    if 'user_preferences' not in session or 'recommendations' not in session:
+        return jsonify({'error': 'Generate recommendations first'}), 400
+    
+    try:
+        user_prefs = session['user_preferences']
+        recommendations = session['recommendations']
+        
+        # Set style for aesthetic graphs
+        plt.style.use('dark_background')
+        
+        # Create figure with subplots
+        fig = plt.figure(figsize=(16, 10))
+        fig.patch.set_facecolor('#121212')
+        
+        # Define colors matching Spotify theme
+        spotify_green = '#1DB954'
+        spotify_white = '#FFFFFF'
+        spotify_gray = '#535353'
+        rec_color = '#FF006C'
+        
+        # Extract audio features from recommendations
+        rec_energy = [r.get('Energy', 0) for r in recommendations if r.get('Energy') is not None]
+        rec_dance = [r.get('Danceability', 0) for r in recommendations if r.get('Danceability') is not None]
+        rec_valence = [r.get('Valence', 0) for r in recommendations if r.get('Valence') is not None]
+        
+        # User preferences
+        user_energy = user_prefs.get('avgEnergy', 0.5)
+        user_dance = user_prefs.get('avgDanceability', 0.5)
+        user_valence = user_prefs.get('avgValence', 0.5)
+        
+        # 1. Radar Chart - Audio Features Comparison
+        ax1 = plt.subplot(2, 3, 1, projection='polar')
+        categories = ['Energy', 'Danceability', 'Valence']
+        N = len(categories)
+        
+        # User data
+        user_values = [user_energy, user_dance, user_valence]
+        user_values += user_values[:1]  # Complete the circle
+        
+        # Recommendations average
+        rec_values = [
+            np.mean(rec_energy) if rec_energy else 0.5,
+            np.mean(rec_dance) if rec_dance else 0.5,
+            np.mean(rec_valence) if rec_valence else 0.5
+        ]
+        rec_values += rec_values[:1]
+        
+        angles = [n / float(N) * 2 * np.pi for n in range(N)]
+        angles += angles[:1]
+        
+        ax1.plot(angles, user_values, 'o-', linewidth=2, color=spotify_green, label='Your Taste')
+        ax1.fill(angles, user_values, alpha=0.25, color=spotify_green)
+        ax1.plot(angles, rec_values, 'o-', linewidth=2, color=rec_color, label='Recommendations')
+        ax1.fill(angles, rec_values, alpha=0.25, color=rec_color)
+        
+        ax1.set_xticks(angles[:-1])
+        ax1.set_xticklabels(categories, color=spotify_white, size=10)
+        ax1.set_ylim(0, 1)
+        ax1.set_title('Audio Features Comparison', color=spotify_white, size=12, pad=20, weight='bold')
+        ax1.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+        ax1.grid(color=spotify_gray, alpha=0.3)
+        
+        # 2. Distribution - Energy
+        ax2 = plt.subplot(2, 3, 2)
+        if rec_energy:
+            ax2.hist(rec_energy, bins=15, alpha=0.7, color=rec_color, edgecolor='white', linewidth=0.5)
+            ax2.axvline(user_energy, color=spotify_green, linestyle='--', linewidth=2, label='Your Average')
+            ax2.set_xlabel('Energy Level', color=spotify_white, size=10)
+            ax2.set_ylabel('Number of Songs', color=spotify_white, size=10)
+            ax2.set_title('Energy Distribution', color=spotify_white, size=12, weight='bold')
+            ax2.legend()
+            ax2.tick_params(colors=spotify_white)
+            ax2.set_facecolor('#1a1a1a')
+        
+        # 3. Distribution - Danceability
+        ax3 = plt.subplot(2, 3, 3)
+        if rec_dance:
+            ax3.hist(rec_dance, bins=15, alpha=0.7, color=rec_color, edgecolor='white', linewidth=0.5)
+            ax3.axvline(user_dance, color=spotify_green, linestyle='--', linewidth=2, label='Your Average')
+            ax3.set_xlabel('Danceability', color=spotify_white, size=10)
+            ax3.set_ylabel('Number of Songs', color=spotify_white, size=10)
+            ax3.set_title('Danceability Distribution', color=spotify_white, size=12, weight='bold')
+            ax3.legend()
+            ax3.tick_params(colors=spotify_white)
+            ax3.set_facecolor('#1a1a1a')
+        
+        # 4. Scatter Plot - Energy vs Danceability
+        ax4 = plt.subplot(2, 3, 4)
+        if rec_energy and rec_dance:
+            ax4.scatter(rec_energy, rec_dance, alpha=0.6, s=100, color=rec_color, edgecolors='white', linewidth=0.5)
+            ax4.scatter([user_energy], [user_dance], s=300, color=spotify_green, marker='*', 
+                       edgecolors='white', linewidth=2, label='Your Profile', zorder=5)
+            ax4.set_xlabel('Energy', color=spotify_white, size=10)
+            ax4.set_ylabel('Danceability', color=spotify_white, size=10)
+            ax4.set_title('Energy vs Danceability', color=spotify_white, size=12, weight='bold')
+            ax4.legend()
+            ax4.grid(True, alpha=0.2, color=spotify_gray)
+            ax4.tick_params(colors=spotify_white)
+            ax4.set_facecolor('#1a1a1a')
+        
+        # 5. Bar Chart - Average Comparison
+        ax5 = plt.subplot(2, 3, 5)
+        metrics = ['Energy', 'Danceability', 'Valence']
+        user_vals = [user_energy, user_dance, user_valence]
+        rec_vals = [
+            np.mean(rec_energy) if rec_energy else 0,
+            np.mean(rec_dance) if rec_dance else 0,
+            np.mean(rec_valence) if rec_valence else 0
+        ]
+        
+        x = np.arange(len(metrics))
+        width = 0.35
+        
+        bars1 = ax5.bar(x - width/2, user_vals, width, label='Your Taste', color=spotify_green, edgecolor='white', linewidth=0.5)
+        bars2 = ax5.bar(x + width/2, rec_vals, width, label='Recommendations', color=rec_color, edgecolor='white', linewidth=0.5)
+        
+        ax5.set_ylabel('Value', color=spotify_white, size=10)
+        ax5.set_title('Average Metrics Comparison', color=spotify_white, size=12, weight='bold')
+        ax5.set_xticks(x)
+        ax5.set_xticklabels(metrics, color=spotify_white)
+        ax5.legend()
+        ax5.tick_params(colors=spotify_white)
+        ax5.set_facecolor('#1a1a1a')
+        ax5.set_ylim(0, 1)
+        
+        # Add value labels on bars
+        for bars in [bars1, bars2]:
+            for bar in bars:
+                height = bar.get_height()
+                ax5.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{height:.2f}',
+                        ha='center', va='bottom', color=spotify_white, size=8)
+        
+        # 6. Box Plot - Feature Distribution
+        ax6 = plt.subplot(2, 3, 6)
+        data_to_plot = []
+        labels = []
+        
+        if rec_energy:
+            data_to_plot.append(rec_energy)
+            labels.append('Energy')
+        if rec_dance:
+            data_to_plot.append(rec_dance)
+            labels.append('Dance')
+        if rec_valence:
+            data_to_plot.append(rec_valence)
+            labels.append('Valence')
+        
+        if data_to_plot:
+            bp = ax6.boxplot(data_to_plot, labels=labels, patch_artist=True,
+                            boxprops=dict(facecolor=rec_color, alpha=0.7, edgecolor='white'),
+                            whiskerprops=dict(color='white'),
+                            capprops=dict(color='white'),
+                            medianprops=dict(color=spotify_green, linewidth=2))
+            
+            ax6.set_ylabel('Value', color=spotify_white, size=10)
+            ax6.set_title('Feature Distribution (Box Plot)', color=spotify_white, size=12, weight='bold')
+            ax6.tick_params(colors=spotify_white)
+            ax6.set_facecolor('#1a1a1a')
+            ax6.set_ylim(0, 1)
+        
+        plt.tight_layout(pad=3.0)
+        
+        # Save to bytes buffer
+        buf = BytesIO()
+        plt.savefig(buf, format='png', dpi=150, facecolor='#121212', edgecolor='none')
+        buf.seek(0)
+        plt.close()
+        
+        # Encode to base64
+        img_base64 = b64.b64encode(buf.getvalue()).decode('utf-8')
+        
+        return jsonify({
+            'image': f'data:image/png;base64,{img_base64}',
+            'analysis': {
+                'similarity_score': calculate_similarity_score(user_vals, rec_vals),
+                'energy_match': abs(user_energy - np.mean(rec_energy)) if rec_energy else 0,
+                'dance_match': abs(user_dance - np.mean(rec_dance)) if rec_dance else 0,
+                'valence_match': abs(user_valence - np.mean(rec_valence)) if rec_valence else 0
+            }
+        })
+        
+    except Exception as error:
+        print(f'Error generating visualization: {error}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to generate visualization'}), 500
+
+def calculate_similarity_score(user_vals, rec_vals):
+    """Calculate overall similarity score between user taste and recommendations"""
+    if not user_vals or not rec_vals:
+        return 0
+    
+    # Calculate Euclidean distance
+    distance = np.sqrt(sum([(u - r) ** 2 for u, r in zip(user_vals, rec_vals)]))
+    
+    # Convert to similarity score (0-100%)
+    max_distance = np.sqrt(3)  # Maximum possible distance for 3 features in [0,1]
+    similarity = (1 - (distance / max_distance)) * 100
+    
+    return round(similarity, 1)
 
 # Start server
 if __name__ == '__main__':

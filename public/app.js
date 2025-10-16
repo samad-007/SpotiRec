@@ -231,6 +231,58 @@ function displayRecommendations(recs) {
             </div>
         </div>
     `).join('');
+    
+    // Auto-load visualization after showing recommendations
+    setTimeout(() => {
+        loadVisualization();
+    }, 500);
+}
+
+// Load and display visualization
+async function loadVisualization() {
+    const visualizationSection = document.getElementById('visualizationSection');
+    const visualizationContainer = document.getElementById('visualizationContainer');
+    const analysisMetrics = document.getElementById('analysisMetrics');
+    
+    // Show the visualization section
+    visualizationSection.style.display = 'block';
+    visualizationContainer.innerHTML = '<div class="loading">Generating beautiful analysis graphs...</div>';
+    
+    // Smooth scroll to visualization
+    setTimeout(() => {
+        visualizationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+    
+    try {
+        const response = await fetch('/api/visualize-analysis');
+        
+        if (!response.ok) {
+            throw new Error('Failed to generate visualization');
+        }
+        
+        const data = await response.json();
+        
+        // Display the visualization image
+        visualizationContainer.innerHTML = `
+            <img src="${data.image}" alt="Music Analysis Visualization" class="visualization-image" />
+        `;
+        
+        // Display analysis metrics
+        analysisMetrics.style.display = 'grid';
+        document.getElementById('similarityScore').textContent = `${data.analysis.similarity_score}%`;
+        document.getElementById('energyMatch').textContent = `${(100 - data.analysis.energy_match * 100).toFixed(0)}%`;
+        document.getElementById('danceMatch').textContent = `${(100 - data.analysis.dance_match * 100).toFixed(0)}%`;
+        document.getElementById('valenceMatch').textContent = `${(100 - data.analysis.valence_match * 100).toFixed(0)}%`;
+        
+    } catch (error) {
+        console.error('Error loading visualization:', error);
+        visualizationContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <p>Unable to generate visualization. Please try getting recommendations again.</p>
+            </div>
+        `;
+    }
 }
 
 // Event Listeners
@@ -245,6 +297,9 @@ logoutBtn.addEventListener('click', () => {
 getRecommendationsBtn.addEventListener('click', getRecommendations);
 
 refreshTopTracksBtn.addEventListener('click', loadTopTracks);
+
+// Add event listener for refresh visualization button
+document.getElementById('refreshVisualization').addEventListener('click', loadVisualization);
 
 // Handle URL parameters (auth success/error)
 const urlParams = new URLSearchParams(window.location.search);
